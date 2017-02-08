@@ -11,6 +11,27 @@
 
 
   <modules>
+    <module>ejb-module</module>
+    <module>client</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Define the version of the JBoss Java EE APIs we want to use -->
+      <!-- JBoss distributes a complete set of Java EE APIs including
+          a Bill of Materials (BOM). A BOM specifies the versions of a "stack" (or
+          a collection) of artifacts. We use this here so that we always get the correct
+          versions of artifacts. Here we use the jboss-javaee-7.0 stack (you can
+          read this as the JBoss stack of the Java EE APIs). You can actually
+          use this stack with any version of WildFly that implements Java EE. -->
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-7.0</artifactId>
+        <version>1.0.3.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>

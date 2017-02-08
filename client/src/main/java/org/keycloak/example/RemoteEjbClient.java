@@ -57,7 +57,7 @@ public class RemoteEjbClient {
         final Hashtable<String, Object> jndiProperties = new Hashtable<String, Object>();
         jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
         jndiProperties.put(Context.PROVIDER_URL, "http-remoting://localhost:8080/");
-        jndiProperties.put(InitialContext.SECURITY_PRINCIPAL, "joe");
+        jndiProperties.put(InitialContext.SECURITY_PRINCIPAL, "joel");
         jndiProperties.put(InitialContext.SECURITY_CREDENTIALS, "pwd");
         jndiProperties.put("jboss.naming.client.ejb.context", true);
         jndiProperties.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");

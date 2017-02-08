@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
 
 import org.keycloak.example.ejb.CalculatorBean;
 import org.keycloak.example.ejb.RemoteCalculator;
@@ -30,23 +31,19 @@ public class RemoteEjbClient {
         final RemoteCalculator statelessRemoteCalculator = lookupRemoteStatelessCalculator();
         System.out.println("Obtained a remote stateless calculator for invocation");
         // invoke on the remote calculator
-        int a = 204;
-        int b = 340;
-        System.out.println("Adding " + a + " and " + b + " via the remote stateless calculator deployed on the server");
-        int sum = statelessRemoteCalculator.add(a, b);
-        System.out.println("Remote calculator returned sum = " + sum);
-        if (sum != a + b) {
-            throw new RuntimeException("Remote stateless calculator returned an incorrect sum " + sum + " ,expected sum was " + (a + b));
-        }
+//        int a = 204;
+//        int b = 340;
+//        System.out.println("Adding " + a + " and " + b + " via the remote stateless calculator deployed on the server");
+//        int sum = statelessRemoteCalculator.add(a, b);
+//        System.out.println("Remote calculator returned sum = " + sum);
+//        if (sum != a + b) {
+//            throw new RuntimeException("Remote stateless calculator returned an incorrect sum " + sum + " ,expected sum was " + (a + b));
+//        }
+
         // try one more invocation, this time for subtraction
-        int num1 = 3434;
-        int num2 = 2332;
-        System.out.println("Subtracting " + num2 + " from " + num1 + " via the remote stateless calculator deployed on the server");
-        int difference = statelessRemoteCalculator.subtract(num1, num2);
-        System.out.println("Remote calculator returned difference = " + difference);
-        if (difference != num1 - num2) {
-            throw new RuntimeException("Remote stateless calculator returned an incorrect difference " + difference + " ,expected difference was " + (num1 - num2));
-        }
+        System.out.println("Call helloSimple");
+        String hello = statelessRemoteCalculator.helloSimple();
+        System.out.println("HelloSimple invocation: " + hello);
     }
 
 
@@ -57,8 +54,14 @@ public class RemoteEjbClient {
      * @throws NamingException
      */
     private static RemoteCalculator lookupRemoteStatelessCalculator() throws NamingException {
-        final Hashtable jndiProperties = new Hashtable();
-        jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+        final Hashtable<String, Object> jndiProperties = new Hashtable<String, Object>();
+        jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+        jndiProperties.put(Context.PROVIDER_URL, "http-remoting://localhost:8080/");
+        jndiProperties.put(InitialContext.SECURITY_PRINCIPAL, "joe");
+        jndiProperties.put(InitialContext.SECURITY_CREDENTIALS, "pwd");
+        jndiProperties.put("jboss.naming.client.ejb.context", true);
+        jndiProperties.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
+
         final Context context = new InitialContext(jndiProperties);
         // The app name is the application name of the deployed EJBs. This is typically the ear name
         // without the .ear suffix. However, the application name could be overridden in the application.xml of the
@@ -78,7 +81,7 @@ public class RemoteEjbClient {
         // the remote view fully qualified class name
         final String viewClassName = RemoteCalculator.class.getName();
         // let's do the lookup
-        String lookupKey = "ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName;
+        String lookupKey = "java:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName;
         System.out.println("Lookup for remote EJB bean: " + lookupKey);
         return (RemoteCalculator) context.lookup(lookupKey);
     }

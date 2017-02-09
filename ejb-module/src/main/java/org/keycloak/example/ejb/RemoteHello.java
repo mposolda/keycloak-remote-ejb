@@ -6,4 +6,6 @@ package org.keycloak.example.ejb;
 public interface RemoteHello {
 
     String helloSimple();
+
+    String helloAdvanced();
 }

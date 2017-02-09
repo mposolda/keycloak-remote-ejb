@@ -11,6 +11,7 @@ import javax.security.auth.Subject;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SecurityContextFactory;
+import org.keycloak.example.ejb.KeycloakToken;
 
 /**
  * Security actions for this package only.

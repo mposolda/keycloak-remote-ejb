@@ -1,13 +1,15 @@
 package org.keycloak.example;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-
-import org.jboss.security.SimplePrincipal;
 import org.keycloak.example.ejb.HelloBean;
+import org.keycloak.example.ejb.KeycloakToken;
 import org.keycloak.example.ejb.RemoteHello;
 
 /**
@@ -17,32 +19,48 @@ import org.keycloak.example.ejb.RemoteHello;
 public class RemoteEjbClient {
 
     public static void main( String[] args ) throws Exception {
-        invokeStatelessBean();
+        // Step 1 : Retrieve username+password of user. It can be done anyhow by the application (eg. swing form)
+        //UsernamePasswordHolder usernamePassword = promptUsernamePassword();
+        UsernamePasswordHolder usernamePassword = new UsernamePasswordHolder("john", "password");
+
+        System.out.println("Will authenticate with username '" + usernamePassword.username + "' and password '" + usernamePassword.password + "'");
+
+        // Step 2 : Keycloak DirectGrant (OAuth2 Resource Owner Password Credentials Grant) from the application
+        DirectGrantInvoker directGrant = new DirectGrantInvoker();
+        KeycloakToken keycloakToken = directGrant.keycloakAuthenticate(usernamePassword.username, usernamePassword.password);
+        System.out.println("Successfully authenticated against Keycloak and retrieved token");
+
+        // Step 3 : Push credentials to clientContext from where ClientInterceptor can retrieve them
+        SecurityActions.securityContextSetPrincipalCredential(null, keycloakToken);
+
+
+        // Step 4 : EJB invoke
+        final RemoteHello remoteHello = lookupRemoteStatelessHello();
+        System.out.println("Obtained RemoteHello for invocation");
+
+        System.out.println("Going to invoke EJB");
+        String hello = remoteHello.helloSimple();
+        System.out.println("HelloSimple invocation: " + hello);
+
+        String hello2 = remoteHello.helloAdvanced();
+        System.out.println("HelloAdvanced invocation: " + hello2);
     }
 
 
-    /**
-     * Looks up a stateless bean and invokes on it
-     *
-     * @throws NamingException
-     */
-    private static void invokeStatelessBean() throws Exception {
-        // Let's lookup the remote stateless calculator
-        final RemoteHello statelessRemoteHello = lookupRemoteStatelessCalculator();
-        System.out.println("Obtained RemoteHello for invocation");
+    private static UsernamePasswordHolder promptUsernamePassword() throws IOException {
+        System.out.println("Remote EJB client will ask for your username and password and then call EJB on your behalf.");
 
-        // No need to set principal here. It can be set through InitialContext.SECURITY_PRINCIPAL
-        //SimplePrincipal principal = new SimplePrincipal("joekc");
-        SimplePrincipal principal = null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            System.out.print("Username: ");
+            String username = reader.readLine();
+            System.out.print("Password: ");
+            String password = reader.readLine();
 
-        Object credential = "password";
-
-        SecurityActions.securityContextSetPrincipalCredential(principal, credential);
-
-        // try invocation
-        System.out.println("Call helloSimple");
-        String hello = statelessRemoteHello.helloSimple();
-        System.out.println("HelloSimple invocation: " + hello);
+            return new UsernamePasswordHolder(username, password);
+        } finally {
+            reader.close();
+        }
     }
 
 
@@ -52,17 +70,9 @@ public class RemoteEjbClient {
      * @return
      * @throws NamingException
      */
-    private static RemoteHello lookupRemoteStatelessCalculator() throws NamingException {
+    private static RemoteHello lookupRemoteStatelessHello() throws NamingException {
         final Hashtable<String, Object> jndiProperties = new Hashtable<String, Object>();
-        jndiProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
-        jndiProperties.put(Context.PROVIDER_URL, "http-remoting://localhost:8080/");
-        jndiProperties.put(InitialContext.SECURITY_PRINCIPAL, "joekc");
-//        jndiProperties.put(InitialContext.SECURITY_CREDENTIALS, "pwd");
-        jndiProperties.put("jboss.naming.client.ejb.context", true);
-        //jndiProperties.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
-        //jndiProperties.put("jboss.naming.client.callback.handler.class", "org.foo.Bar");
-        jndiProperties.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
-
+        jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
         final Context context = new InitialContext(jndiProperties);
         // The app name is the application name of the deployed EJBs. This is typically the ear name
         // without the .ear suffix. However, the application name could be overridden in the application.xml of the
@@ -82,9 +92,22 @@ public class RemoteEjbClient {
         // the remote view fully qualified class name
         final String viewClassName = RemoteHello.class.getName();
         // let's do the lookup
-        String lookupKey = "java:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName;
+        String lookupKey = "ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName;
         System.out.println("Lookup for remote EJB bean: " + lookupKey);
         return (RemoteHello) context.lookup(lookupKey);
+    }
+
+
+    private static class UsernamePasswordHolder {
+
+        private final String username;
+        private final String password;
+
+        public UsernamePasswordHolder(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
     }
 
 }

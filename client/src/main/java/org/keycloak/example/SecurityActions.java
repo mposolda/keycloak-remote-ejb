@@ -33,6 +33,10 @@ public class SecurityActions {
         return securityContextActions().getCredential();
     }
 
+    static void clearSecurityContext() {
+        securityContextActions().clearSecurityContext();
+    }
+
     private static SecurityContextActions securityContextActions() {
         return System.getSecurityManager() == null ? SecurityContextActions.NON_PRIVILEGED : SecurityContextActions.PRIVILEGED;
     }
@@ -46,6 +50,8 @@ public class SecurityActions {
         Object getCredential();
 
         void set(final SecurityContext securityContext);
+
+        void clearSecurityContext();
 
         SecurityContextActions NON_PRIVILEGED = new SecurityContextActions() {
 
@@ -76,6 +82,10 @@ public class SecurityActions {
                 SecurityContextAssociation.setSecurityContext(securityContext);
             }
 
+            @Override
+            public void clearSecurityContext() {
+                SecurityContextAssociation.clearSecurityContext();
+            }
         };
 
         SecurityContextActions PRIVILEGED = new SecurityContextActions() {
@@ -134,6 +144,17 @@ public class SecurityActions {
                 });
             }
 
+            @Override
+            public void clearSecurityContext() {
+                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+
+                    @Override
+                    public Void run() {
+                        NON_PRIVILEGED.clearSecurityContext();
+                        return null;
+                    }
+                });
+            }
         };
 
     }

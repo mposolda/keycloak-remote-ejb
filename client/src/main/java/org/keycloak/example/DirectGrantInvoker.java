@@ -59,6 +59,8 @@ public class DirectGrantInvoker {
             String json = StreamUtil.readString(entity.getContent());
             AccessTokenResponse accessTokenResponse = JsonSerialization.readValue(json, AccessTokenResponse.class);
             return KeycloakToken.create(username, accessTokenResponse.getToken());
+
+            // TODO: Should logout after...
         } finally {
             client.close();
         }

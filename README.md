@@ -2,7 +2,7 @@
 
 This shows how to create remote EJB beans secured by Keycloak.
 
-There is remote EJB client, which first asks user for his username+password and then authenticate against Keycloak server via
+There is remote EJB client, which first asks user for his username+password and then authenticate against RHSSO/Keycloak server via
 Direct Grant (OAuth2 Resource Owner Password Credential Grant). It sets the Keycloak accessToken to the EJB context (with usage of ClientInterceptor).
 
 The server-side is remote EJB bean, which retrieves the token from the EJB Context passed from client and put it to the ThreadLocal where JAAS 
@@ -13,10 +13,10 @@ add needed principal, which are "known" to Wildfly, so that it can authorize EJB
 How to have this running
 ------------------------
 1. This example assumes Keycloak demo distribution downloaded somewhere ( will be referenced by $KEYCLOAK_DEMO ). It shouldn't be a problem
- to use separate Keycloak server and separate Wildfly server with installed Keycloak adapter though.
+ to use separate RHSSO/Keycloak server and separate Wildfly server with installed Keycloak adapter though.
  
  
-2. Build this with: 
+2. Build this project with: 
 ````
 mvn clean install
 ````
@@ -38,13 +38,13 @@ cp ejb-module/target/ejb-module.jar $KEYCLOAK_DEMO_HOME/keycloak/standalone/depl
                 </security-domain>
 ````
 
-5. Run the Wildfly server
+5. Run the keycloak server
 
-6. Create admin user in Keycloak and login to admin console (See Keycloak docs for details).
+6. Create admin user in Keycloak and login to admin console (See Keycloak/RHSSO docs for details).
 
-7. Import realm from file `testrealm.json` in this project
+7. In keycloak admin console, import realm from file `testrealm.json` .
 
-8. TODO Run the client. You can either run class `RemoteEjbClient` from IDE or use maven command like this:
+8. Run the client. You can either run class `RemoteEjbClient` from IDE or use maven command like this:
 ````
 cd client
 mvn exec:java -Pclient

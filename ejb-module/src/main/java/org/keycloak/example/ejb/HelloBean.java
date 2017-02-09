@@ -34,10 +34,6 @@ public class HelloBean implements RemoteHello {
     @Override
     public String helloSimple() {
         Principal principal = ctx.getCallerPrincipal();
-
-        // TODO: privileged (if needed)
-        // org.jboss.security.SecurityContextAssociation.getSecurityContext().getSubjectInfo().getAuthenticatedSubject().getPrincipals(KeycloakPrincipal.class)
-
         return "Simple - Hello " + principal.getName();
     }
 
@@ -46,11 +42,21 @@ public class HelloBean implements RemoteHello {
     public String helloAdvanced() {
         Principal principal = ctx.getCallerPrincipal();
 
-        Subject subject = org.jboss.security.SecurityContextAssociation.getSecurityContext().getSubjectInfo().getAuthenticatedSubject();
+        Subject subject = getSecurityContext().getSubjectInfo().getAuthenticatedSubject();
         Set<KeycloakPrincipal> keycloakPrincipals = subject.getPrincipals(KeycloakPrincipal.class);
         KeycloakPrincipal kcPrincipal = keycloakPrincipals.iterator().next();
         AccessToken accessToken = kcPrincipal.getKeycloakSecurityContext().getToken();
 
         return "Advanced - Hello " + accessToken.getName();
+    }
+
+
+    private SecurityContext getSecurityContext() {
+        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+            @Override
+            public SecurityContext run() {
+                return SecurityContextAssociation.getSecurityContext();
+            }
+        });
     }
 }

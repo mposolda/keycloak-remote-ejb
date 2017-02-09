@@ -37,7 +37,6 @@ cp ejb-module/target/ejb-module.jar $KEYCLOAK_DEMO_HOME/keycloak/standalone/depl
                     </authentication>
                 </security-domain>
 ````
-
 5. Run the keycloak server
 
 6. Create admin user in Keycloak and login to admin console (See Keycloak/RHSSO docs for details).

@@ -20,8 +20,8 @@ public class RemoteEjbClient {
 
     public static void main( String[] args ) throws Exception {
         // Step 1 : Retrieve username+password of user. It can be done anyhow by the application (eg. swing form)
-        //UsernamePasswordHolder usernamePassword = promptUsernamePassword();
-        UsernamePasswordHolder usernamePassword = new UsernamePasswordHolder("john", "password");
+        UsernamePasswordHolder usernamePassword = promptUsernamePassword();
+        //UsernamePasswordHolder usernamePassword = new UsernamePasswordHolder("john", "password");
 
         System.out.println("Will authenticate with username '" + usernamePassword.username + "' and password '" + usernamePassword.password + "'");
 

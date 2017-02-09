@@ -26,6 +26,10 @@ public class HelloBean implements RemoteHello {
     @Override
     public String helloSimple() {
         Principal principal = ctx.getCallerPrincipal();
+
+        // TODO: privileged (if needed)
+        // org.jboss.security.SecurityContextAssociation.getSecurityContext().getSubjectInfo().getAuthenticatedSubject().getPrincipals(KeycloakPrincipal.class)
+
         return "Simple - Hello " + principal.getName();
     }
 }

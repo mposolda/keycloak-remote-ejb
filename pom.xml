@@ -10,6 +10,10 @@
   <description>Misc</description>
 
 
+  <properties>
+    <keycloak.version>2.5.1.Final</keycloak.version>
+  </properties>
+
   <modules>
     <module>ejb-module</module>
     <module>client</module>
@@ -39,6 +43,17 @@
         <version>10.0.0.Final</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-core</artifactId>
+        <version>${keycloak.version}</version>
       </dependency>
 
     </dependencies>

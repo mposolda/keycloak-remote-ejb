@@ -40,6 +40,16 @@
 
         <dependency>
             <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-security-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wildfly.core</groupId>
+            <artifactId>wildfly-core-security-api</artifactId>
+        </dependency>
+
+        <!-- TODO: Remove -->
+        <dependency>
+            <groupId>org.wildfly</groupId>
             <artifactId>wildfly-security</artifactId>
             <version>10.0.0.Final</version>
         </dependency>

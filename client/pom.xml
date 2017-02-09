@@ -68,6 +68,16 @@
         <finalName>${project.artifactId}</finalName>
         <plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
             <!-- Add the maven exec plug-in to allow us to run a java program
                 via maven -->
             <!--<plugin>

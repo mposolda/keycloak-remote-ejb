@@ -11,22 +11,17 @@ import javax.ejb.Stateless;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 /**
- * @author Jaikiran Pai
+ * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 @Stateless
-@Remote(RemoteCalculator.class)
+@Remote(RemoteHello.class)
 @RolesAllowed({ "user" })
 @SecurityDomain("keycloak-ejb")
-public class CalculatorBean implements RemoteCalculator {
+public class HelloBean implements RemoteHello {
 
     // Inject the Session Context
     @Resource
     private SessionContext ctx;
-
-    @Override
-    public int add(int a, int b) {
-        return a + b;
-    }
 
     @Override
     public String helloSimple() {
